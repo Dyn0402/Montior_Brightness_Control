@@ -13,23 +13,29 @@ import os
 
 
 def main():
-    build_executable('MonitorBrightnessControl.py')
+    build_executable('MonitorBrightnessControl.py', 'monitor_brightness_icon.ico')
     print('donzo')
 
 
-def build_executable(script_name):
+def build_executable(script_name, icon_path=None):
     # Ensure the script exists
     if not os.path.isfile(script_name):
         print(f"Error: {script_name} not found.")
         return
 
-    # PyInstaller command to create the executable
+    # Basic PyInstaller command
     pyinstaller_command = [
         'pyinstaller',
         '--onefile',         # Create a single executable
         '--windowed',        # No console window for GUI apps
         script_name          # The Python script to convert to an executable
     ]
+
+    # If an icon path is provided, add the --icon option
+    if icon_path and os.path.isfile(icon_path):
+        pyinstaller_command.insert(-1, f'--icon={icon_path}')
+    elif icon_path:
+        print(f"Warning: Icon file '{icon_path}' not found. Proceeding without custom icon.")
 
     try:
         # Run the PyInstaller command
