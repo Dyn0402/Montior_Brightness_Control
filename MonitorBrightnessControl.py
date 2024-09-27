@@ -44,7 +44,7 @@ class BrightnessControlApp:
         master_label.pack(side='left')
 
         master_slider = ttk.Scale(master_frame, from_=0, to=100, orient='horizontal', command=self.set_all_brightness)
-        master_slider.set(50)  # Set master slider to 50% as default
+        master_slider.set(100)  # Set master slider to 50% as default
         master_slider.pack(side='left', fill='x', expand=True)
 
         self.master_slider = master_slider
