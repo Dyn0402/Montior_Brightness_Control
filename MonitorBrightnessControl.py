@@ -10,7 +10,7 @@ Created as Montior_Brightness_Control/MonitorBrightnessControl.py
 
 import tkinter as tk
 from tkinter import ttk
-from monitorcontrol import get_monitors
+from monitorcontrol import get_monitors, VCPError
 
 
 class BrightnessControlApp:
@@ -18,7 +18,7 @@ class BrightnessControlApp:
         self.root = root
         self.root.title("Brightness Control")
 
-        self.monitors = get_monitors()
+        self.monitors = get_available_monitors()
         self.sliders = []
 
         # Create individual sliders for each monitor
@@ -31,7 +31,7 @@ class BrightnessControlApp:
 
             slider = ttk.Scale(frame, from_=0, to=100, orient='horizontal',
                                command=lambda value, idx=idx: self.set_brightness(idx, int(float(value))))
-            slider.set(self.get_current_luminance(monitor))
+            slider.set(get_current_luminance(monitor))
             slider.pack(side='left', fill='x', expand=True)
 
             self.sliders.append(slider)
@@ -49,10 +49,6 @@ class BrightnessControlApp:
 
         self.master_slider = master_slider
 
-    def get_current_luminance(self, monitor):
-        with monitor:
-            return monitor.get_luminance()
-
     def set_brightness(self, monitor_idx, brightness_value):
         with self.monitors[monitor_idx] as monitor:
             print(f'Setting Monitor {monitor_idx + 1} brightness to {brightness_value}')
@@ -65,6 +61,22 @@ class BrightnessControlApp:
         for idx, monitor in enumerate(self.monitors):
             self.sliders[idx].set(brightness_value)
             self.set_brightness(idx, brightness_value)
+
+
+def get_available_monitors():
+    monitors = get_monitors()
+    avail_monitors = []
+    for idx, monitor in enumerate(monitors):
+        try:
+            get_current_luminance(monitor)
+            avail_monitors.append(monitor)
+        except VCPError:
+            print(f'Monitor {idx + 1} does not support luminance control.')
+    return avail_monitors
+
+def get_current_luminance(monitor):
+    with monitor:
+        return monitor.get_luminance()
 
 
 if __name__ == "__main__":
